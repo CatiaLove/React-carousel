@@ -1,6 +1,6 @@
 const slider = (function(){
 	
-	
+	//const
 	const slider = document.getElementById("slider"); 
 	console.log(slider);
 	const sliderContent = document.querySelector(".slider-content"); 
@@ -46,7 +46,7 @@ const slider = (function(){
 	
 	function init(props) {
 		
-		let {intervalSpeed, position, offset} = itemsInfo;
+		let {intervalSpeed, position, offset, update, reset} = itemsInfo;
 		
 		
 		if (slider && sliderContent && sliderWrapper && elements) {
@@ -55,9 +55,15 @@ const slider = (function(){
 				intervalSpeed = props.intervalSpeed;
 			}
 			if (props && props.currentItem) {
-				if ( parseInt(props.currentItem) >= position.min && parseInt(props.currentItem) <= position.max ) {
-					position.current = props.currentItem;
-					offset = - props.currentItem;	
+				if ( parseInt(props.currentItem) >= position.min && parseInt(props.currentItem) < position.max ) {
+					update(props.currentItem)
+					// position.current = props.currentItem;
+					// offset = - props.currentItem;	
+				}
+				if ( parseInt(props.currentItem) >= position.min && parseInt(props.currentItem) == position.max ) {
+					reset()
+					// position.current = 0;
+					// offset = 0;	
 				}
 			}
 			if (props && props.buttons) {
@@ -71,14 +77,14 @@ const slider = (function(){
 			_createControls(controlsInfo.dotsEnabled, controlsInfo.buttonsEnabled);
 			_render();	
 		} else {
-			console.log("Разметка слайдера задана неверно. Проверьте наличие всех необходимых классов 'slider/slider-content/slider-wrapper/slider-content__item'");
+			console.log("slider/slider-content/slider-wrapper/slider-content__item");
 		}
 	}
 
 	function _updateControlsInfo() {
 		const {current, min, max} = itemsInfo.position;
 		controlsInfo.prevButtonDisabled = current > min ? false : true;
-		controlsInfo.nextButtonDisabled = current < max ? false : true;
+		controlsInfo.nextButtonDisabled = current < max -1 ? false : true;
 	}
 
 	
@@ -142,7 +148,7 @@ const slider = (function(){
 			autoButton = createHTMLElement("button", "auto-control", "Auto");
 			autoButton.addEventListener("click", () => {
 				intervalId = setInterval(function(){
-					if (itemsInfo.position.current < itemsInfo.position.max) {
+					if (itemsInfo.position.current < itemsInfo.position.max - 1) {
 						itemsInfo.update(itemsInfo.position.current + 1);
 					} else {
 						itemsInfo.reset();
@@ -182,14 +188,14 @@ const slider = (function(){
 	function _render() {
 		const {prevButtonDisabled, nextButtonDisabled} = controlsInfo;
 		let controlsArray = [
-			{element: leftArrow, className: "d-none"},
-			{element: rightArrow, className: "d-none"}
+			{element: leftArrow, className: "d-none", disabled: prevButtonDisabled},
+			{element: rightArrow, className: "d-none", disabled: nextButtonDisabled}
 		];
 		if (controlsInfo.buttonsEnabled) {
 			controlsArray = [
 				...controlsArray, 
-				{element:prevButton, className: "disabled"},
-				{element:nextButton, className: "disabled"}
+				{element:prevButton, className: "disabled", disabled: prevButtonDisabled},
+				{element:nextButton, className: "disabled", disabled: nextButtonDisabled}
 			];
 		}
 		
