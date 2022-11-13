@@ -27,8 +27,15 @@ const slider = (function(){
 		intervalSpeed: 2000, 
 
 		update: function(value) {
-			this.position.current = value;
-			this.offset = -value;
+			if(value == this.position.max){
+				this.reset()
+			}else if(value < this.position.min) {
+				this.position.current = this.position.max - 1;
+				this.offset = -(this.position.max - 1);
+			} else{
+				this.position.current = value;
+				this.offset = -value;
+			}
 		},
 		reset: function() {
 			this.position.current = 0;
@@ -39,14 +46,14 @@ const slider = (function(){
 	const controlsInfo = {
 		buttonsEnabled: false,
 		dotsEnabled: false,
-		prevButtonDisabled: true,
+		prevButtonDisabled: false,
 		nextButtonDisabled: false
 	};
 
 	
 	function init(props) {
 		
-		let {intervalSpeed, position, offset, update, reset} = itemsInfo;
+		let {intervalSpeed, position, update, reset} = itemsInfo;
 		
 		
 		if (slider && sliderContent && sliderWrapper && elements) {
@@ -56,14 +63,10 @@ const slider = (function(){
 			}
 			if (props && props.currentItem) {
 				if ( parseInt(props.currentItem) >= position.min && parseInt(props.currentItem) < position.max ) {
-					update(props.currentItem)
-					// position.current = props.currentItem;
-					// offset = - props.currentItem;	
+					update(props.currentItem)	
 				}
 				if ( parseInt(props.currentItem) >= position.min && parseInt(props.currentItem) == position.max ) {
 					reset()
-					// position.current = 0;
-					// offset = 0;	
 				}
 			}
 			if (props && props.buttons) {
@@ -73,7 +76,7 @@ const slider = (function(){
 				controlsInfo.dotsEnabled = true;
 			}
 			
-			_updateControlsInfo();
+			// _updateControlsInfo();
 			_createControls(controlsInfo.dotsEnabled, controlsInfo.buttonsEnabled);
 			_render();	
 		} else {
@@ -84,7 +87,7 @@ const slider = (function(){
 	function _updateControlsInfo() {
 		const {current, min, max} = itemsInfo.position;
 		controlsInfo.prevButtonDisabled = current > min ? false : true;
-		controlsInfo.nextButtonDisabled = current < max -1 ? false : true;
+		controlsInfo.nextButtonDisabled = current < max ? false : true;
 	}
 
 	
@@ -148,7 +151,7 @@ const slider = (function(){
 			autoButton = createHTMLElement("button", "auto-control", "Auto");
 			autoButton.addEventListener("click", () => {
 				intervalId = setInterval(function(){
-					if (itemsInfo.position.current < itemsInfo.position.max - 1) {
+					if (itemsInfo.position.current < itemsInfo.position.max) {
 						itemsInfo.update(itemsInfo.position.current + 1);
 					} else {
 						itemsInfo.reset();
@@ -219,7 +222,7 @@ const slider = (function(){
 		if (autoMode && intervalId) {
 			clearInterval(intervalId);
 		}
-		_updateControlsInfo();
+		// _updateControlsInfo();
 		_render();
 	}
 
